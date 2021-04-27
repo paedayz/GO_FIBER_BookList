@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/paedayz/GO_FIBER_BookList.git/driver"
+	models "github.com/paedayz/GO_FIBER_BookList.git/model"
 
 	"github.com/subosito/gotenv"
 )
@@ -36,6 +37,25 @@ func main() {
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello World")
+	})
+
+	app.Get("/books", func(c *fiber.Ctx) error {
+		var book models.Book
+		books := []models.Book{}
+
+		rows, err := db.Query("select * from books")
+		logFatal(err)
+
+		defer rows.Close()
+
+		for rows.Next() {
+			err := rows.Scan(&book.ID, &book.Title, &book.Author, &book.Year) // Check if every column of rows had data
+			logFatal(err)
+
+			books = append(books, book)
+		}
+
+		return c.JSON(books)
 	})
 
 	app.Post("/book", func(c *fiber.Ctx) error {
