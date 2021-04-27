@@ -58,6 +58,16 @@ func main() {
 		return c.JSON(books)
 	})
 
+	app.Get("/book/:id", func(c *fiber.Ctx) error {
+		var book models.Book
+		params_id := c.Params("id")
+
+		rows := db.QueryRow("select * from books where id=$1", params_id) // Query data from database
+		err := rows.Scan(&book.ID, &book.Title, &book.Author, &book.Year) // Store data from database to var book
+		logFatal(err)
+		return c.JSON(book)
+	})
+
 	app.Post("/book", func(c *fiber.Ctx) error {
 		var bookID int
 		b := new(Book)
