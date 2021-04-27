@@ -95,5 +95,13 @@ func main() {
 		return c.JSON(b)
 	})
 
+	app.Delete("/book/:id", func(c *fiber.Ctx) error {
+		params_id := c.Params("id")
+		_, err := db.Exec("delete from books where id = $1", params_id)
+		logFatal(err)
+
+		return c.SendString(params_id)
+	})
+
 	app.Listen(":3000")
 }
