@@ -83,5 +83,17 @@ func main() {
 		return c.SendString(strconv.Itoa(bookID))
 	})
 
+	app.Put("/book", func(c *fiber.Ctx) error {
+		b := new(models.Book)
+		if err := c.BodyParser(b); err != nil {
+			return err
+		}
+		_, err := db.Exec("update books set title=$1, author=$2, year=$3 where id=$4 RETURNING id",
+			b.Title, b.Author, b.Year, b.ID)
+		logFatal(err)
+
+		return c.JSON(b)
+	})
+
 	app.Listen(":3000")
 }
